@@ -6,7 +6,7 @@ class Product {
   final String barcode;
   final String category;
   final String description;
-  final String brand;
+  final int brand;
   final bool isActive;
   final bool isFilled;
   final String path;
@@ -23,4 +23,19 @@ class Product {
     required this.isFilled,
     required this.path,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['good_id'],
+      name: json['good_name'],
+      article: json['good_article'],
+      barcode: json['good_barcode'] ,
+      category: json['good_category'],
+      description: json['good_description'],
+      brand: json['good_brand'],
+      isActive: json['active'],
+      isFilled: json['filled'],
+      path: json['photo_path']
+    );
+  }
 }
