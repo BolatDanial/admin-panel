@@ -19,7 +19,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   void initState() {
     super.initState();
-    futureProducts = fetchProducts(); // your async function
+    futureProducts = fetchProducts(); 
   }
 
   @override
@@ -57,12 +57,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
             filters: [
               FilterItem(
                 label: 'Category',
-                options: ['All', 'Electronics', 'Furniture', 'Kitchen'],
+                options: ['All'],
                 onChanged: (value) {},
               ),
               FilterItem(
                 label: 'Stock',
-                options: ['All', 'Low (<10)', 'Medium (10-30)', 'High (>30)'],
+                options: ['All'],
                 onChanged: (value) {},
               ),
             ],
