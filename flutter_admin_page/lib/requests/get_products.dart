@@ -7,7 +7,7 @@ Future<List<Product>> fetchProducts() async {
 
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODg0NTI2Nn0.D1K_-dQdBAurbOAkfJgNYlaMhRt1Zm0BvgL69R7g50I',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODg4MTc3M30.4eWewTH84JyFkFX8-yyqWT_GcxPLceZnWUwDtx637ak',
   };
 
   try {

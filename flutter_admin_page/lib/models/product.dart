@@ -6,7 +6,7 @@ class Product {
   final String barcode;
   final String category;
   final String description;
-  final int brand;
+  final int? brand;
   final bool isActive;
   final bool isFilled;
   final String path;
@@ -18,7 +18,7 @@ class Product {
     required this.barcode,
     required this.category,
     required this.description,
-    required this.brand,
+    this.brand,
     required this.isActive,
     required this.isFilled,
     required this.path,
@@ -28,14 +28,14 @@ class Product {
     return Product(
       id: json['good_id'],
       name: json['good_name'],
-      article: json['good_article'],
+      article: json['good_article']?.toString() ?? '',
       barcode: json['good_barcode'] ,
-      category: json['good_category'],
-      description: json['good_description'],
-      brand: json['good_brand'],
+      category: json['good_category']?.toString() ?? '',
+      description: json['good_description']?.toString() ?? '',
+      brand: json['good_brand'] != null ? int.tryParse(json['price'].toString()) : null,
       isActive: json['active'],
       isFilled: json['filled'],
-      path: json['photo_path']
+      path: json['photo_path']?.toString() ?? ''
     );
   }
 }
