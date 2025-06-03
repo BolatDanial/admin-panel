@@ -2,8 +2,13 @@ import 'package:flutter_admin_page/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<List<Product>> fetchProducts() async {
-  final url = Uri.parse('http://127.0.0.1:8080/admin/products');
+Future<List<Product>> fetchProducts({String? emptyField, String? category}) async {
+  final queryParams = {
+    if (emptyField != "No" && emptyField != null) 'emptyField': emptyField,
+    if (category != "All" && category != null) 'category': category,
+  };
+
+  final url = Uri.http('127.0.0.1:8000', '/admin/products', queryParams);
 
   final headers = {
     'Content-Type': 'application/json',

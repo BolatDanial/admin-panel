@@ -5,10 +5,11 @@ from jose import jwt, JWTError
 from config import JWT_SECRET, JWT_ALGORITHM
 from database import db_pools, get_db_connection
 from models import ProductModel
-from typing import List, Annotated
+from typing import List, Annotated, Optional
 from asyncpg import Connection
 from auth import router as auth_router
 from contextlib import asynccontextmanager
+from urllib.parse import unquote
 
 AdminConn = Annotated[Connection, get_db_connection("admin")]
 
@@ -40,15 +41,42 @@ app.add_middleware(
 app.include_router(auth_router)
 
 @app.get("/admin/products", response_model=List[ProductModel])
-async def get_products(conn: AdminConn, user: str = Depends(verify_token)):
-    query = """
-        SELECT 
-            g.good_id, g.good_name, g.good_article, g.good_barcode, 
-            g.good_description, g.good_brand, g.good_category, 
-            g.active, g.filled, g.photo_path
-        FROM goods g
-        WHERE g.good_id=$1
-        LIMIT 100;
-    """
-    rows = await conn.fetch(query, "00494f92-e6a1-4645-bcd1-428b5397c453")
+async def get_products(conn: AdminConn, emptyField: Optional[str] = None,  category: Optional[str] = None, user: str = Depends(verify_token)):
+    conditions = []
+    params = []
+
+    if emptyField == "Article":
+        conditions.append("(g.good_article IS NULL OR g.good_article = '' OR g.good_article = '@')")
+
+    if emptyField == "Category":
+        conditions.append("(g.good_category IS NULL OR g.good_category = '' OR g.good_category = '@')")
+
+    if emptyField == "Description":
+        conditions.append("(g.good_description IS NULL OR g.good_description = '' OR g.good_description = '@')")
+
+    if emptyField == "Brand":
+        conditions.append("(g.good_brand IS NULL)")
+
+    if emptyField == "Photo":
+        conditions.append("(g.photo_path IS NULL OR g.photo_path = '@')")
+
+    if category:
+        params.append(category)
+        conditions.append(f"c.cat_name = ${len(params)}")
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    query = f"""
+            SELECT 
+                g.good_id, g.good_name, g.good_article, g.good_barcode, c.cat_name,
+                g.good_description, g.good_brand, 
+                g.active, g.filled, g.photo_path
+            FROM goods g
+            LEFT JOIN goods_categories c ON g.good_category = c.cat_id
+            {where_clause}
+            ORDER BY g.good_id ASC 
+            LIMIT 100;
+        """
+
+    rows = await conn.fetch(query, *params)
     return [ProductModel(**dict(row)) for row in rows]

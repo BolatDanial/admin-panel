@@ -1,17 +1,87 @@
 // components/data_table_with_filters.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_admin_page/models/product.dart';
 
-class FilterItem {
+class FilterItem extends StatelessWidget {
   final String label;
   final List<String> options;
-  final Function(String?) onChanged;
+  final String? value;
+  final ValueChanged<String?> onChanged;
 
-  FilterItem({
+  const FilterItem({
     required this.label,
     required this.options,
     required this.onChanged,
+    this.value,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: value ?? options.first,
+      onChanged: onChanged,
+      items: options.map((option) {
+        return DropdownMenuItem<String>(
+          value: option,
+          child: Text(option),
+        );
+      }).toList(),
+    );
+  }
 }
+
+List<DataRow> buildRows(AsyncSnapshot<List<Product>> snapshot) {
+  if (snapshot.connectionState == ConnectionState.waiting) {
+    return [
+      DataRow(cells: [
+        DataCell(ColoredBox(
+          color: Colors.grey[200]!,
+          child: SizedBox(
+            height: 56,
+            width: double.infinity,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        )),
+      ])
+    ];
+  } else if (snapshot.hasError) {
+    return [
+      DataRow(cells: [
+        DataCell(ColoredBox(
+          color: Colors.grey[200]!,
+          child: SizedBox(
+            height: 56,
+            width: double.infinity,
+            child: Center(child: Text('Error: ${snapshot.error}')),
+          ),
+        )),
+      ])
+    ];
+  }
+
+  final products = snapshot.data ?? [];
+  if (products.isEmpty) {
+    return [
+      DataRow(cells: [
+        DataCell(ColoredBox(
+          color: Colors.grey[200]!,
+          child: SizedBox(
+            height: 56,
+            width: double.infinity,
+            child: Center(child: Text('No products found.')),
+          ),
+        )),
+      ])
+    ];
+  }
+
+  return products.map((product) {
+    return DataRow(cells: [
+      // ... your data cells ...
+    ]);
+  }).toList();
+}
+
 
 class DataTableWithFilters extends StatelessWidget {
   final String title;
@@ -114,7 +184,6 @@ class DataTableWithFilters extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         
-        // Data Table
         Expanded(
           child: Card(
             child: SingleChildScrollView(
@@ -123,13 +192,31 @@ class DataTableWithFilters extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: columns,
-                  rows: rows,
+                  rows: rows.map((row) {
+                    return DataRow(
+                      cells: row.cells.map((cell) {
+                        return DataCell(
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minWidth: 100, // Set your minimum width
+                              maxWidth: 600, // Set your maximum width
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: DefaultTextStyle.merge(
+                                softWrap: true,
+                                child: cell.child ?? const SizedBox(),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }).toList(),
                   headingRowColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) => Colors.blueGrey[50],
                   ),
                   dividerThickness: 1,
-                  dataRowMinHeight: 48,
-                  dataRowMaxHeight: 48,
                   showBottomBorder: true,
                 ),
               ),

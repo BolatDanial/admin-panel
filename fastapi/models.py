@@ -5,10 +5,10 @@ class ProductModel(BaseModel):
     good_id: str
     good_name: str
     good_article: Optional[str]
-    good_barcode: Optional[str]
+    good_barcode: str
+    cat_name: Optional[str]
     good_description: Optional[str]
     good_brand: Optional[int]
-    good_category: Optional[str]
     active: bool
     filled: bool
     photo_path: Optional[str]
