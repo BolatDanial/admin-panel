@@ -1,18 +1,13 @@
-import 'package:flutter_admin_page/models/product.dart';
+import 'package:flutter_admin_page/models/category.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<List<Product>> fetchProducts({String? emptyField, String? category}) async {
-  final queryParams = {
-    if (emptyField != "No" && emptyField != null) 'emptyField': emptyField,
-    if (category != "All" && category != null) 'category': category,
-  };
-
-  final url = Uri.http('127.0.0.1:8000', '/admin/products', queryParams);
+Future<List<Category>> fetchCategories() async {
+  final url = Uri.http('127.0.0.1:8000', '/admin/categories', {});
 
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODg4MTc3M30.4eWewTH84JyFkFX8-yyqWT_GcxPLceZnWUwDtx637ak',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODk2MjgzOX0.rYBsyAjOabAIV88_CUUz03Qh-5Sh0O6SLqefdhIfKi4',
   };
 
   try {
@@ -22,7 +17,7 @@ Future<List<Product>> fetchProducts({String? emptyField, String? category}) asyn
       final body = json.decode(utf8.decode(response.bodyBytes));
 
       if (body is List) {
-        return body.map((item) => Product.fromJson(item)).toList();
+        return body.map((item) => Category.fromJson(item)).toList();
       } else {
         throw Exception('Unexpected response format: expected a list');
       }

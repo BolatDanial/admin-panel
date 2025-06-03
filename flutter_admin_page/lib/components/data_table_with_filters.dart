@@ -30,7 +30,7 @@ class FilterItem extends StatelessWidget {
   }
 }
 
-List<DataRow> buildRows(AsyncSnapshot<List<Product>> snapshot) {
+List<DataRow> buildRows(AsyncSnapshot<List<ProductGet>> snapshot) {
   if (snapshot.connectionState == ConnectionState.waiting) {
     return [
       DataRow(cells: [
@@ -90,6 +90,7 @@ class DataTableWithFilters extends StatelessWidget {
   final List<FilterItem> filters;
   final String searchHint;
   final Function(String) onSearch;
+  final Function(String) onChanged;
   final Function() onAdd;
 
   const DataTableWithFilters({
@@ -100,6 +101,7 @@ class DataTableWithFilters extends StatelessWidget {
     required this.filters,
     required this.searchHint,
     required this.onSearch,
+    required this.onChanged,
     required this.onAdd,
   });
 
@@ -124,6 +126,7 @@ class DataTableWithFilters extends StatelessWidget {
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Add New'),
               onPressed: onAdd,
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueGrey[700],
                 foregroundColor: Colors.white,
@@ -148,7 +151,8 @@ class DataTableWithFilters extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onChanged: onSearch,
+                  onSubmitted: onSearch,
+                  onChanged: onChanged,
                 ),
                 const SizedBox(height: 16),
                 
@@ -158,7 +162,7 @@ class DataTableWithFilters extends StatelessWidget {
                   runSpacing: 16,
                   children: filters.map((filter) {
                     return SizedBox(
-                      width: 200,
+                      width: 250,
                       child: DropdownButtonFormField<String>(
                         decoration: InputDecoration(
                           labelText: filter.label,
@@ -173,7 +177,7 @@ class DataTableWithFilters extends StatelessWidget {
                           );
                         }).toList(),
                         onChanged: filter.onChanged,
-                        value: filter.options.first,
+                        value: filter.value,
                       ),
                     );
                   }).toList(),

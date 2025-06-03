@@ -1,5 +1,5 @@
 // models/product.dart
-class Product {
+class ProductGet {
   final String id;
   final String name;
   final String article;
@@ -7,11 +7,9 @@ class Product {
   final String category;
   final String description;
   final String brand;
-  final bool isActive;
-  final bool isFilled;
   final String path;
 
-  Product({
+  ProductGet({
     required this.id,
     required this.name,
     required this.article,
@@ -19,23 +17,41 @@ class Product {
     required this.category,
     required this.description,
     required this.brand,
-    required this.isActive,
-    required this.isFilled,
     required this.path,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory ProductGet.fromJson(Map<String, dynamic> json) {
+    return ProductGet(
       id: json['good_id'],
       name: json['good_name'],
       article: json['good_article']?.toString() ?? '',
       barcode: json['good_barcode'] ,
       category: json['cat_name']?.toString() ?? '',
       description: json['good_description']?.toString() ?? '',
-      brand: json['good_brand']?.toString() ?? "No brand",
-      isActive: json['active'],
-      isFilled: json['filled'],
+      brand: json['brand_name']?.toString() ?? "No brand",
       path: json['photo_path']?.toString() ?? ''
     );
   }
+}
+
+class ProductCreate {
+  final String id;
+  final String name;
+  final String article;
+  final String barcode;
+  final String category;
+  final String description;
+  final int brand;
+  final String path;
+
+  ProductCreate({
+    required this.id,
+    required this.name,
+    required this.article,
+    required this.barcode,
+    required this.category,
+    required this.description,
+    required this.brand,
+    required this.path,
+  });
 }
