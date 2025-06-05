@@ -35,7 +35,6 @@ class ProductGet {
 }
 
 class ProductCreate {
-  final String id;
   final String name;
   final String article;
   final String barcode;
@@ -45,7 +44,6 @@ class ProductCreate {
   final String path;
 
   ProductCreate({
-    required this.id,
     required this.name,
     required this.article,
     required this.barcode,

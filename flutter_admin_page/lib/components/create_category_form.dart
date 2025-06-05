@@ -1,68 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_admin_page/models/brand.dart';
 import 'package:flutter_admin_page/models/category.dart';
 
-class AddProductForm extends StatefulWidget {
-  final void Function(String name, String article, String barcode,
-      CategoryGet category, String description, BrandGet brand, String image) onSubmit;
-  final List<BrandGet> availableBrands;
+class AddCategoryForm extends StatefulWidget {
+  final void Function(String name, CategoryGet category, String keywords,
+      String photo_path, String badKeywords) onSubmit;
   final List<CategoryGet> availableCategories;
 
-  const AddProductForm({
+  const AddCategoryForm({
     super.key, 
     required this.onSubmit,
-    required this.availableBrands,
     required this.availableCategories,
   });
 
   @override
-  _AddProductFormState createState() => _AddProductFormState();
+  _AddCategoryFormState createState() => _AddCategoryFormState();
 }
 
-class _AddProductFormState extends State<AddProductForm> {
+class _AddCategoryFormState extends State<AddCategoryForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _articleController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _imageController = TextEditingController();
+  final _keywordsController = TextEditingController();
+  final _photoController = TextEditingController();
+  final _badKeywordsController = TextEditingController();
+
   
-  BrandGet? _selectedBrand;
   CategoryGet? _selectedCategory;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _articleController.dispose();
-    _barcodeController.dispose();
-    _descriptionController.dispose();
-    _imageController.dispose();
+    _keywordsController.dispose();
+    _photoController.dispose();
+    _badKeywordsController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedBrand == null || _selectedCategory == null) {
+      if (_selectedCategory == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select both brand and category')),
+          const SnackBar(content: Text('Please mark category as NewParent or select parent category')),
         );
         return;
       }
 
       final name = _nameController.text.trim();
-      final article = _articleController.text.trim();
-      final barcode = _barcodeController.text.trim();
-      final description = _descriptionController.text.trim();
-      final image = _imageController.text.trim();
+      final keywords = _keywordsController.text.trim();
+      final photo = _photoController.text.trim();
+      final badKeywords = _badKeywordsController.text.trim();
       
       widget.onSubmit(
         name, 
-        article, 
-        barcode, 
         _selectedCategory!, 
-        description, 
-        _selectedBrand!, 
-        image
+        keywords, 
+        photo, 
+        badKeywords
       );
       Navigator.pop(context); // close the modal
     }
@@ -103,7 +95,7 @@ class _AddProductFormState extends State<AddProductForm> {
                     ),
                   ),
                 ),
-                Text("Add Product", style: Theme.of(context).textTheme.titleLarge),
+                Text("Add Category", style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,
@@ -116,33 +108,12 @@ class _AddProductFormState extends State<AddProductForm> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _articleController,
-                  decoration: const InputDecoration(
-                    labelText: "Article",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Please enter article'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _barcodeController,
-                  decoration: const InputDecoration(
-                    labelText: "Barcode",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Please enter barcode'
-                      : null,
-                ),
+
                 const SizedBox(height: 16),
                 DropdownButtonFormField<CategoryGet>(
                   value: _selectedCategory,
                   decoration: const InputDecoration(
-                    labelText: "Category",
+                    labelText: "Parent Category",
                     border: OutlineInputBorder(),
                   ),
                   items: widget.availableCategories.map((CategoryGet category) {
@@ -156,48 +127,42 @@ class _AddProductFormState extends State<AddProductForm> {
                       _selectedCategory = newValue;
                     });
                   },
-                  validator: (value) => value == null ? 'Please select a category' : null,
+                  validator: (value) => value == null ? 'Please select a parent category' : null,
                 ),
+
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _descriptionController,
+                  controller: _keywordsController,
                   decoration: const InputDecoration(
-                    labelText: "Description",
+                    labelText: "Key words (separate by comma)",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) => value == null || value.isEmpty
-                      ? 'Please enter description'
+                      ? 'Please enter key words (separate by comma)'
                       : null,
                 ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<BrandGet>(
-                  value: _selectedBrand,
-                  decoration: const InputDecoration(
-                    labelText: "Brand",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: widget.availableBrands.map((BrandGet brand) {
-                    return DropdownMenuItem<BrandGet>(
-                      value: brand,
-                      child: Text(brand.name),
-                    );
-                  }).toList(),
-                  onChanged: (BrandGet? newValue) {
-                    setState(() {
-                      _selectedBrand = newValue;
-                    });
-                  },
-                  validator: (value) => value == null ? 'Please select a brand' : null,
-                ),
+                
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _imageController,
+                  controller: _photoController,
                   decoration: const InputDecoration(
-                    labelText: "Image Path",
+                    labelText: "Photo Path",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) => value == null || value.isEmpty
-                      ? 'Please enter image'
+                      ? 'Please enter photo path'
+                      : null,
+                ),
+              
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _badKeywordsController,
+                  decoration: const InputDecoration(
+                    labelText: "Bad Keywords (separate by comma)",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Please enter bad keywords (separate by comma)'
                       : null,
                 ),
                 const SizedBox(height: 24),

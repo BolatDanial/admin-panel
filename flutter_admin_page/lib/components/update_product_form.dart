@@ -1,34 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_page/models/brand.dart';
 import 'package:flutter_admin_page/models/category.dart';
+import 'package:flutter_admin_page/models/product.dart';
 
-class AddProductForm extends StatefulWidget {
+class UpdateProductForm extends StatefulWidget {
   final void Function(String name, String article, String barcode,
       CategoryGet category, String description, BrandGet brand, String image) onSubmit;
   final List<BrandGet> availableBrands;
   final List<CategoryGet> availableCategories;
+  final ProductGet? oldProduct;
 
-  const AddProductForm({
+  const UpdateProductForm({
     super.key, 
     required this.onSubmit,
     required this.availableBrands,
     required this.availableCategories,
+    required this.oldProduct,
   });
 
   @override
-  _AddProductFormState createState() => _AddProductFormState();
+  _UpdateProductFormState createState() => _UpdateProductFormState();
 }
 
-class _AddProductFormState extends State<AddProductForm> {
+class _UpdateProductFormState extends State<UpdateProductForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _articleController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _imageController = TextEditingController();
-  
+  late final TextEditingController _nameController;
+  late final TextEditingController _articleController;
+  late final TextEditingController _barcodeController;
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _imageController;
+
   BrandGet? _selectedBrand;
   CategoryGet? _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize controllers with initial values if provided
+    _nameController = TextEditingController(text: widget.oldProduct?.name ?? '');
+    _articleController = TextEditingController(text: widget.oldProduct?.article ?? '');
+    _barcodeController = TextEditingController(text: widget.oldProduct?.barcode ?? '');
+    _descriptionController = TextEditingController(text: widget.oldProduct?.description ?? '');
+    _imageController = TextEditingController(text: widget.oldProduct?.path ?? '');
+  }
 
   @override
   void dispose() {
@@ -103,7 +118,7 @@ class _AddProductFormState extends State<AddProductForm> {
                     ),
                   ),
                 ),
-                Text("Add Product", style: Theme.of(context).textTheme.titleLarge),
+                Text("Update Product", style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,

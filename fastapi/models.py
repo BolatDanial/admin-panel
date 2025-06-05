@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+#Base Model
 class ProductBase(BaseModel):
-    good_id: str
     good_name: str
     good_article: Optional[str] = None
     good_barcode: str
@@ -16,16 +16,33 @@ class ProductCreate(ProductBase):
 
 # Output model (for GET responses)
 class ProductGet(ProductBase):
+    good_id: str
     cat_name: Optional[str] = None
     brand_name: Optional[str]
 
-class CategoryModel(BaseModel):
-    cat_id: str
+#Base Model
+class CategoryBase(BaseModel):
     cat_name: str
+    cat_parent: str
 
-class BrandModel(BaseModel):
+# Input model (for POST/PUT requests)
+class CategoryCreate(CategoryBase):
+    cat_keywords: str
+    cat_photo_path: str
+    bad_keywords: str
+
+# Output model (for GET responses)
+class CategoryGet(CategoryBase):
+    cat_id: str
+
+#Base Model
+class BrandBase(BaseModel):
     brand_id: int
     brand_name: str
+
+# Input model (for POST/PUT requests)
+class BrandCreate(BrandBase):
+    brand_keywords: List[str]
 
 class Token(BaseModel):
     access_token: str

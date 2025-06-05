@@ -82,28 +82,55 @@ List<DataRow> buildRows(AsyncSnapshot<List<ProductGet>> snapshot) {
   }).toList();
 }
 
-
 class DataTableWithFilters extends StatelessWidget {
   final String title;
   final List<DataColumn> columns;
+  final List<String> columnNames;
   final List<DataRow> rows;
   final List<FilterItem> filters;
   final String searchHint;
   final Function(String) onSearch;
-  final Function(String) onChanged;
-  final Function() onAdd;
+  final TextEditingController searchController;
+  final ScrollController scrollController;
+  final Function() onAddProduct;
+  final Function() onAddBrand;
+  final Function() onAddCategory;
+  final Set<String> truncatedColumns; // Columns that should show truncated text
 
   const DataTableWithFilters({
     super.key,
     required this.title,
     required this.columns,
+    required this.columnNames,
     required this.rows,
     required this.filters,
     required this.searchHint,
     required this.onSearch,
-    required this.onChanged,
-    required this.onAdd,
+    required this.searchController,
+    required this.scrollController,
+    required this.onAddProduct,
+    required this.onAddBrand,
+    required this.onAddCategory,
+    this.truncatedColumns = const {}, // Default empty set
   });
+
+  void _showFullTextDialog(BuildContext context, String title, String text) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: SelectableText(text),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,16 +149,39 @@ class DataTableWithFilters extends StatelessWidget {
                 color: Colors.blueGrey,
               ),
             ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add New'),
-              onPressed: onAdd,
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey[700],
-                foregroundColor: Colors.white,
-              ),
-            ),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add New Category'),
+                  onPressed: onAddCategory,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey[700],
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add New Brand'),
+                  onPressed: onAddBrand,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey[700],
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add New Product'),
+                  onPressed: onAddProduct,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey[700],
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            )
           ],
         ),
         const SizedBox(height: 16),
@@ -144,6 +194,7 @@ class DataTableWithFilters extends StatelessWidget {
               children: [
                 // Search bar
                 TextField(
+                  controller: searchController,
                   decoration: InputDecoration(
                     hintText: searchHint,
                     prefixIcon: const Icon(Icons.search),
@@ -152,7 +203,6 @@ class DataTableWithFilters extends StatelessWidget {
                     ),
                   ),
                   onSubmitted: onSearch,
-                  onChanged: onChanged,
                 ),
                 const SizedBox(height: 16),
                 
@@ -191,6 +241,7 @@ class DataTableWithFilters extends StatelessWidget {
         Expanded(
           child: Card(
             child: SingleChildScrollView(
+              controller: scrollController,
               scrollDirection: Axis.vertical,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -198,19 +249,49 @@ class DataTableWithFilters extends StatelessWidget {
                   columns: columns,
                   rows: rows.map((row) {
                     return DataRow(
-                      cells: row.cells.map((cell) {
+                      cells: row.cells.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final cell = entry.value;
+                        final columnName = columnNames[index];
+                        
+                        // Check if this column should have truncated text
+                        final shouldTruncate = truncatedColumns.contains(columnName);
+                        
                         return DataCell(
                           ConstrainedBox(
                             constraints: const BoxConstraints(
-                              minWidth: 100, // Set your minimum width
-                              maxWidth: 600, // Set your maximum width
+                              minWidth: 100,
+                              maxWidth: 400,
                             ),
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: DefaultTextStyle.merge(
-                                softWrap: true,
-                                child: cell.child ?? const SizedBox(),
-                              ),
+                              child: shouldTruncate
+                                  ? InkWell(
+                                      onTap: () {
+                                        if (cell.child is Text) {
+                                          final textWidget = cell.child as Text;
+                                          _showFullTextDialog(
+                                            context,
+                                            columnName,
+                                            textWidget.data ?? '',
+                                          );
+                                        }
+                                      },
+                                      child: Tooltip(
+                                        message: 'Click to view full text',
+                                        child: Text(
+                                          cell.child is Text 
+                                              ? (cell.child as Text).data ?? ''
+                                              : '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    )
+                                  : DefaultTextStyle.merge(
+                                      softWrap: true,
+                                      child: cell.child ?? const SizedBox(),
+                                    ),
                             ),
                           ),
                         );

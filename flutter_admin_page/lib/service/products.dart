@@ -2,18 +2,20 @@ import 'package:flutter_admin_page/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<List<ProductGet>> fetchProducts({String? emptyField, String? category, String? search}) async {
+Future<List<ProductGet>> fetchProducts({String? emptyField, String? category, String? search, int? limit, int? offset}) async {
   final queryParams = {
     if (emptyField != "No" && emptyField != null) 'emptyField': emptyField,
     if (category != "All" && category != null) 'category': category,
     if (search != "" && search != null) 'search': search,
+    if (limit != null) 'limit': limit.toString(),
+    if (offset != null) 'offset': offset.toString(),
   };
 
   final url = Uri.http('127.0.0.1:8000', '/admin/products', queryParams);
 
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODk2MjgzOX0.rYBsyAjOabAIV88_CUUz03Qh-5Sh0O6SLqefdhIfKi4',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0OTEzMjE5OX0.L_FhCe8Dp18Kkntm6M_9B403gCBLT70gdrNyQjXzNpQ',
   };
 
   try {
@@ -39,11 +41,10 @@ Future<void> postProduct(ProductCreate product) async {
   final url = Uri.parse('http://127.0.0.1:8000/admin/products');
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODk2MjgzOX0.rYBsyAjOabAIV88_CUUz03Qh-5Sh0O6SLqefdhIfKi4',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0OTEzMjE5OX0.L_FhCe8Dp18Kkntm6M_9B403gCBLT70gdrNyQjXzNpQ',
   };
 
   final body = jsonEncode({
-    "good_id": product.id,
     "good_name": product.name,
     "good_article": product.article,
     "good_barcode": product.barcode,
@@ -70,11 +71,45 @@ Future<void> postProduct(ProductCreate product) async {
   }
 }
 
+Future<void> putProduct(ProductCreate product, String id) async {
+  final url = Uri.parse('http://127.0.0.1:8000/admin/products/$id');
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0OTEzMjE5OX0.L_FhCe8Dp18Kkntm6M_9B403gCBLT70gdrNyQjXzNpQ',
+  };
+
+  final body = jsonEncode({
+    "good_name": product.name,
+    "good_article": product.article,
+    "good_barcode": product.barcode,
+    "good_description": product.description,
+    "photo_path": product.path,
+    "good_category": product.category,
+    "good_brand": product.brand
+  });
+
+  try {
+    final response = await http.put(
+      url,
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+    } else {
+      throw Exception('Request failed with status: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Request failed: Error: $e');
+  }
+}
+
 Future<void> deleteProduct(String id) async {
   final url = Uri.parse('http://127.0.0.1:8000/admin/products/$id');
   final headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0ODk2MjgzOX0.rYBsyAjOabAIV88_CUUz03Qh-5Sh0O6SLqefdhIfKi4',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0OTEzMjE5OX0.L_FhCe8Dp18Kkntm6M_9B403gCBLT70gdrNyQjXzNpQ',
   };
 
   try {
